@@ -1,50 +1,176 @@
-# Welcome to your Expo app 👋
+# ☁️ CloudWatch — Weather & News App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A cross-platform **React Native (Expo Bare Workflow)** application that provides real-time weather updates and trending news, powered by **OpenWeather API** and **NewsData.io**.  
+Includes Firebase Authentication and a modern, minimal UI optimized for both Android and iOS.
 
-## Get started
+---
 
-1. Install dependencies
+## ✨ Features
 
-   ```bash
-   npm install
-   ```
+- 🌦️ **Live Weather Forecasts** (based on user’s location)
+- 📰 **Latest News** (category-based + search)
+- 🔐 **Firebase Authentication** (sign up / sign in)
+- 📍 **Location Services** using Expo Location
+- 🌈 **Modern Responsive UI**
+- 🧭 **Expo Router Navigation**
+- 💾 **Local Data Storage** using AsyncStorage
+- 🔄 **Pull-to-Refresh and Search Functionality**
+- 🕒 **Date Formatting** via DayJS
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🧰 Tech Stack
 
-In the output, you'll find options to open the app in a
+| Category | Tools |
+|-----------|-------|
+| Framework | React Native (Expo Bare Workflow) |
+| Navigation | Expo Router |
+| Styling | React Native, Responsive Screen, Ionicons |
+| Authentication | Firebase Auth |
+| APIs | OpenWeather, NewsData.io |
+| Location | Expo Location |
+| Date/Time | DayJS |
+| State | React Hooks |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🚀 Getting Started
 
-## Get a fresh project
+### 🪄 Prerequisites
 
-When you're ready, run:
+Make sure you have these installed:
 
-```bash
-npm run reset-project
+- Node.js ≥ 18  
+- npm or yarn  
+- Expo CLI  
+- Android Studio (for Android testing)  
+- Xcode (for iOS testing — macOS only)  
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1️⃣ Clone the Repository
+```powershell
+git clone <your_repo_url>
+cd weatherApp
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2️⃣ Install Dependencies
+```powershell
+npm install
+```
 
-## Learn more
+### 3️⃣ Configure Firebase
+Download your Firebase config files and add them:
 
-To learn more about developing your project with Expo, look at the following resources:
+```
+android/app/google-services.json
+ios/GoogleService-Info.plist
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 4️⃣ Configure Environment Variables
+Create a `.env` file in the project root:
 
-## Join the community
+```env
+WEATHER_API_KEY=your_openweather_api_key
+NEWS_API_KEY=your_newsdata_api_key
+```
 
-Join our community of developers creating universal apps.
+_(Optionally include `.env.example` for teammates.)_
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 5️⃣ iOS Setup (for teammate)
+Run these on macOS before running the app:
+```bash
+cd ios
+pod install
+cd ..
+```
+
+---
+
+## ▶️ Running the App
+
+### 🟢 On Android
+```powershell
+npx expo run:android
+```
+_(Or use Android Studio emulator / connected device)_
+
+### 🍎 On iOS (Mac Only)
+```bash
+npx expo run:ios
+```
+_(Or open `ios/CloudWatch.xcworkspace` in Xcode and hit ▶️)_
+
+---
+
+## 🏗️ Building for Release
+
+### Android
+```powershell
+eas build -p android --profile production
+```
+
+### iOS
+_(requires Apple Developer account and macOS)_
+```bash
+eas build -p ios --profile production
+```
+
+---
+
+## 🧹 Cleaning the Project (Windows PowerShell)
+
+If your build fails or dependencies get corrupted:
+```powershell
+Remove-Item -Recurse -Force node_modules, android\app\build, ios\build, .expo, .gradle -ErrorAction SilentlyContinue
+npm install
+cd ios && pod install && cd ..
+```
+
+---
+
+## 📦 Preparing to Send to Another Engineer (Windows PowerShell)
+
+Before zipping or pushing to GitHub:
+
+```powershell
+# Clean up unnecessary build files
+Remove-Item -Recurse -Force node_modules, android\app\build, ios\build, .expo, .gradle -ErrorAction SilentlyContinue
+
+# Zip it up
+Compress-Archive -Path * -DestinationPath ..\weatherapp_clean.zip
+```
+
+This creates `weatherapp_clean.zip` one folder above your project directory.
+
+---
+
+## 🧾 .gitignore Recommendations
+
+Ensure your `.gitignore` includes:
+```
+node_modules/
+.expo/
+build/
+android/app/build/
+ios/build/
+.gradle/
+.env
+google-services.json
+GoogleService-Info.plist
+```
+
+---
+
+## 🧠 Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| App won't start on iOS | Run `cd ios && pod install` |
+| Firebase Auth fails | Check Firebase configuration and bundle ID |
+| Location permission denied | Enable manually in device settings |
+| Gradle build failed | Run `cd android && ./gradlew clean` then retry |
+| "Text strings must be rendered..." warning | Already suppressed via LogBox |
+
