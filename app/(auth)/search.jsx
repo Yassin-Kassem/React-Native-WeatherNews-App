@@ -72,10 +72,10 @@ export default function SearchScreen() {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={hp("2.8%")} color="#1A1A1A" />
+                    <Ionicons name="arrow-back" size={22} color="#fff" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Search Location</Text>
-                <View style={{ width: hp("2.8%") }} />
+                <View style={{ width: wp("10%") }} />
             </View>
 
             {/* Search Input */}
@@ -92,12 +92,15 @@ export default function SearchScreen() {
 
             {/* Results */}
             {loading ? (
-                <ActivityIndicator size="large" color="#333" style={{ marginTop: hp("4%") }} />
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#333" />
+                </View>
             ) : (
                 <FlatList
                     data={results}
                     showsVerticalScrollIndicator={false}
                     keyExtractor={(item, index) => `${index}-${item.name}`}
+                    contentContainerStyle={styles.listContent}
                     ListEmptyComponent={
                         query.length > 1 ? (
                             <Text style={styles.emptyText}>No results found.</Text>
@@ -135,30 +138,37 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F7F8FA", // clean neutral background
-        paddingHorizontal: wp("5%"),
-        paddingTop: hp("6%"),
     },
     header: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: hp("3%"),
+        backgroundColor: "#1261A0",
+        paddingTop: hp("8%"),
+        paddingBottom: hp("2%"),
+        paddingHorizontal: wp("5%"),
     },
     backButton: {
-        backgroundColor: "#EDEDED",
+        backgroundColor: "rgba(255, 255, 255, 0.15)",
         padding: hp("1%"),
         borderRadius: hp("2%"),
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     headerTitle: {
-        color: "#1A1A1A",
-        fontSize: hp("2.4%"),
-        fontWeight: "600",
+        color: "#fff",
+        fontSize: wp("6%"),
+        fontWeight: "bold",
+        textAlign: "center",
+        flex: 1,
     },
     searchContainer: {
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "#fff",
-        borderRadius: hp("1.4%"),
+        borderRadius: wp("2.5%"),
         paddingHorizontal: wp("4%"),
         paddingVertical: hp("1%"),
         shadowColor: "#000",
@@ -166,6 +176,8 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 3,
         elevation: 2,
+        marginHorizontal: wp("5%"),
+        marginTop: hp("2%"),
         marginBottom: hp("2%"),
     },
     searchIcon: {
@@ -208,10 +220,20 @@ const styles = StyleSheet.create({
         fontSize: hp("1.7%"),
         color: "#777",
     },
+    listContent: {
+        paddingHorizontal: wp("5%"),
+        paddingBottom: hp("5%"),
+    },
+    loaderContainer: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        paddingTop: hp("4%"),
+    },
     emptyText: {
         textAlign: "center",
         color: "#666",
         marginTop: hp("5%"),
-        fontSize: hp("2%"),
+        fontSize: wp("4%"),
     },
 });

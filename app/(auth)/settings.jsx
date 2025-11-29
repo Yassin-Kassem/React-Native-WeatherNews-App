@@ -26,38 +26,50 @@ export default function SettingsScreen() {
         <View style={styles.container}>
             {/* HEADER */}
             <View style={styles.header}>
-                <TouchableOpacity
-                    onPress={() => router.back()}
-                    style={styles.backButton}
-                    activeOpacity={0.7}
-                >
-                    <Ionicons name="arrow-back" size={22} color="#333" />
-                </TouchableOpacity>
                 <Text style={styles.headerTitle}>Settings</Text>
-                <View style={{ width: wp("6%") }} />
             </View>
 
             {/* CONTENT */}
             <View style={styles.content}>
-                <View style={styles.infoCard}>
-                    <Ionicons name="mail-outline" size={22} color="#6d597a" />
-                    <Text
-                        style={styles.emailText}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                    >
-                        {String(email)}
-                    </Text>
+                {/* Profile Section */}
+                <View style={styles.profileSection}>
+                    <View style={styles.avatarContainer}>
+                        <Ionicons name="person" size={hp("4%")} color="#1261A0" />
+                    </View>
+                    <Text style={styles.profileName}>Account</Text>
                 </View>
 
-                <TouchableOpacity
-                    style={styles.signOutButton}
-                    onPress={handleSignOut}
-                    activeOpacity={0.85}
-                >
-                    <Ionicons name="log-out-outline" size={20} color="#fff" />
-                    <Text style={styles.signOutText}>Sign Out</Text>
-                </TouchableOpacity>
+                {/* Account Info Card */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Account Information</Text>
+                    <View style={styles.infoCard}>
+                        <View style={styles.iconContainer}>
+                            <Ionicons name="mail-outline" size={hp("2.5%")} color="#1261A0" />
+                        </View>
+                        <View style={styles.infoContent}>
+                            <Text style={styles.infoLabel}>Email Address</Text>
+                            <Text
+                                style={styles.emailText}
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                            >
+                                {String(email)}
+                            </Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* Sign Out Button */}
+                <View style={styles.actionSection}>
+                    <TouchableOpacity
+                        style={styles.signOutButton}
+                        onPress={handleSignOut}
+                        activeOpacity={0.85}
+                    >
+                        <Ionicons name="log-out-outline" size={hp("2.5%")} color="#fff" />
+                        <Text style={styles.signOutText}>Sign Out</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );
@@ -67,76 +79,127 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F8FAFC", // soft neutral white-gray
-        paddingTop: hp("6%"),
-        paddingHorizontal: wp("5%"),
     },
 
     header: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: hp("4%"),
-    },
-    backButton: {
-        borderRadius: hp("2%"),
-        backgroundColor: "#fff",
-        padding: 8,
-        shadowColor: "#000",
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
+        justifyContent: "flex-start",
+        backgroundColor: "#1261A0",
+        paddingTop: hp("8%"),
+        paddingBottom: hp("2%"),
+        paddingHorizontal: wp("5%"),
     },
     headerTitle: {
-        color: "#111827",
-        fontSize: hp("2.8%"),
-        fontWeight: "700",
+        color: "#fff",
+        fontSize: wp("9%"),
+        fontWeight: "bold",
     },
 
     content: {
-        marginTop: hp("2%"),
-        alignItems: "center",
+        flex: 1,
+        paddingTop: hp("3%"),
+        paddingHorizontal: wp("5%"),
     },
 
+    profileSection: {
+        alignItems: "center",
+        marginBottom: hp("4%"),
+    },
+    avatarContainer: {
+        width: hp("10%"),
+        height: hp("10%"),
+        borderRadius: hp("5%"),
+        backgroundColor: "#E3F2FD",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: hp("1.5%"),
+        borderWidth: 3,
+        borderColor: "#1261A0",
+    },
+    profileName: {
+        fontSize: wp("5%"),
+        fontWeight: "700",
+        color: "#1a1a1a",
+        letterSpacing: 0.3,
+    },
+
+    section: {
+        marginBottom: hp("3%"),
+    },
+    sectionTitle: {
+        fontSize: wp("3.5%"),
+        fontWeight: "600",
+        color: "#64748b",
+        marginBottom: hp("1.5%"),
+        textTransform: "uppercase",
+        letterSpacing: 0.5,
+    },
     infoCard: {
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "#fff",
-        borderRadius: 14,
-        paddingVertical: hp("2%"),
+        borderRadius: wp("3%"),
+        paddingVertical: hp("2.5%"),
         paddingHorizontal: wp("4%"),
         width: "100%",
         shadowColor: "#000",
-        shadowOpacity: 0.06,
-        shadowOffset: { width: 0, height: 3 },
-        shadowRadius: 6,
-        elevation: 2,
+        shadowOpacity: 0.08,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 8,
+        elevation: 3,
+        borderWidth: 1,
+        borderColor: "#f1f5f9",
+    },
+    iconContainer: {
+        width: hp("5%"),
+        height: hp("5%"),
+        borderRadius: hp("2.5%"),
+        backgroundColor: "#E3F2FD",
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: wp("3%"),
+    },
+    infoContent: {
+        flex: 1,
+    },
+    infoLabel: {
+        fontSize: wp("3%"),
+        fontWeight: "500",
+        color: "#64748b",
+        marginBottom: hp("0.3%"),
+        textTransform: "uppercase",
+        letterSpacing: 0.3,
     },
     emailText: {
-        flex: 1,
-        fontSize: hp("2%"),
-        color: "#333",
-        marginLeft: wp("3%"),
+        fontSize: wp("4%"),
+        fontWeight: "600",
+        color: "#1a1a1a",
     },
 
+    actionSection: {
+        marginTop: hp("2%"),
+        marginBottom: hp("3%"),
+    },
     signOutButton: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#cc2f26",
-        paddingVertical: hp("1.8%"),
-        borderRadius: 12,
+        backgroundColor: "#dc2626",
+        paddingVertical: hp("2%"),
+        borderRadius: wp("3%"),
         width: "100%",
-        marginTop: hp("4%"),
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowOffset: { width: 0, height: 3 },
-        shadowRadius: 4,
-        elevation: 3,
+        shadowColor: "#dc2626",
+        shadowOpacity: 0.3,
+        shadowOffset: { width: 0, height: 4 },
+        shadowRadius: 8,
+        elevation: 4,
     },
     signOutText: {
         color: "#fff",
-        fontSize: hp("2.1%"),
-        fontWeight: "600",
+        fontSize: wp("4%"),
+        fontWeight: "700",
         marginLeft: wp("2%"),
+        letterSpacing: 0.5,
     },
 });

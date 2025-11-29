@@ -5,18 +5,18 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Keyboard,
-  RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Image,
+    Keyboard,
+    RefreshControl,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
 const NEWSDATA_API_KEY = "pub_ffab93546f794a52ad26d4f8de5f312c";
@@ -90,9 +90,9 @@ export default function NewsScreen() {
   const openArticle = (url) => {
     if (!url || !url.startsWith("http")) return;
     router.push({
-      pathname: "/link",
-      params: { url: encodeURIComponent(url) },
-    });
+      pathname: "/article/[link]",
+      params: { link: encodeURIComponent(url) },
+    });    
   };
 
   const renderArticle = ({ item }) => (
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: "#6d597a",
     paddingHorizontal: wp("5%"),
-    paddingTop: hp("6%"),
+    paddingTop: hp("8%"),
     paddingBottom: hp("2%"),
   },
   headerTitle: { color: "white", fontSize: wp("6%"), fontWeight: "bold" },
@@ -254,12 +254,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E2E8F0",
     borderRadius: wp("6%"),
-    paddingHorizontal: 16, // ✅ fixed padding not percentage (prevents clipping)
-    paddingVertical: 8,
-    marginRight: 8,
+    paddingHorizontal: wp("4%"),
+    paddingVertical: hp("1%"),
+    marginRight: wp("2%"),
     flexGrow: 0,
-    flexShrink: 0, // ✅ ensures no text shrinking or compression
-    alignSelf: "flex-start", // ✅ makes the button size fit the text exactly
+    flexShrink: 0,
+    alignSelf: "flex-start",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  listContent: { paddingHorizontal: wp("4%"), paddingBottom: hp("10%") },
+  listContent: { paddingHorizontal: wp("5%"), paddingBottom: hp("10%") },
   card: {
     backgroundColor: "white",
     borderRadius: wp("4%"),

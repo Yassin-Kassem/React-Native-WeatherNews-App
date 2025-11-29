@@ -68,18 +68,31 @@ const WeatherScreen = () => {
         }
     };
 
-    // ✅ Fetch weather by city name (with fatal API error handling)
-    const fetchWeather = async (cityName) => {
+    // ✅ Fetch weather by city name or coordinates (optimized)
+    const fetchWeather = async (cityNameOrCoords) => {
         try {
             setLoading(true);
-            const url = `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${encodeURIComponent(
-                cityName
-            )}&days=6&aqi=no&alerts=no`;
+            // Support both city name (string) and coordinates (object with lat/lon)
+            const query = typeof cityNameOrCoords === 'string' 
+                ? encodeURIComponent(cityNameOrCoords)
+                : `${cityNameOrCoords.latitude},${cityNameOrCoords.longitude}`;
+            
+            const url = `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${query}&days=6&aqi=no&alerts=no`;
 
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const data = await response.json();
 
-            if (!response.ok || data.error) {
+            if (data.error) {
                 showAlert(
                     data.error?.message || "Unable to fetch weather data.",
                     "WeatherAPI Error"
@@ -88,6 +101,7 @@ const WeatherScreen = () => {
             }
 
             setWeather(data);
+            setError(null);
         } catch (err) {
             console.error("Weather fetch error:", err);
             setError(err.message);
@@ -96,57 +110,8 @@ const WeatherScreen = () => {
         }
     };
 
-    // ✅ Fetch user's current location and weather (with “Choose City” alert)
+    // ✅ Fetch user's current location and weather (optimized - uses coordinates directly)
     const fetchWeatherByLocation = async () => {
-        try {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                setError("Location permission denied");
-                setLoading(false);
-                return;
-            }
-
-            const loc = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.BestAvailable,
-            });
-
-            const { latitude, longitude } = loc.coords;
-            const reverse = await Location.reverseGeocodeAsync({ latitude, longitude });
-
-            if (reverse?.length > 0) {
-                const locationData = reverse[0];
-                const cityName =
-                    locationData.city || locationData.subregion || locationData.region || "Unknown";
-                setCity(cityName);
-                await fetchWeather(cityName);
-            } else {
-                throw new Error("Could not determine location name");
-            }
-        } catch (err) {
-            console.error("Error detecting location:", err);
-            setError(err.message);
-
-            // ⚠️ Show alert only when location fails badly
-            showAlert(
-                "We couldn’t detect your location. You can select one manually.",
-                "Location Unavailable",
-                {
-                    confirmText: "Choose City",
-                    onConfirm: () => router.push("/search"),
-                }
-            );
-
-            try {
-                await fetchWeather("San Francisco");
-                setCity((c) => c || "San Francisco");
-            } catch { }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Manual refresh button action
-    const handleRefreshLocation = async () => {
         try {
             setLoading(true);
             const { status } = await Location.requestForegroundPermissionsAsync();
@@ -156,29 +121,112 @@ const WeatherScreen = () => {
                 return;
             }
 
+            // Use Balanced accuracy for faster location (instead of BestAvailable)
             const loc = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.BestAvailable,
+                accuracy: Location.Accuracy.Balanced,
+                maximumAge: 60000, // Use cached location if less than 1 minute old
+                timeout: 10000, // 10 second timeout
             });
 
-            const reverse = await Location.reverseGeocodeAsync({
-                latitude: loc.coords.latitude,
-                longitude: loc.coords.longitude,
-            });
+            const { latitude, longitude } = loc.coords;
+            
+            // Fetch weather directly with coordinates (faster than reverse geocoding first)
+            await fetchWeather({ latitude, longitude });
+            
+            // Get city name in parallel (non-blocking) for display
+            Location.reverseGeocodeAsync({ latitude, longitude })
+                .then((reverse) => {
+                    if (reverse?.length > 0) {
+                        const locationData = reverse[0];
+                        const cityName =
+                            locationData.city || locationData.subregion || locationData.region || "Unknown";
+                        setCity(cityName);
+                        saveSelectedCity(cityName); // Save in background
+                    }
+                })
+                .catch((err) => {
+                    console.log("Reverse geocoding failed (non-critical):", err);
+                    // Set a fallback city name from coordinates
+                    setCity(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+                });
+        } catch (err) {
+            console.error("Error detecting location:", err);
+            setError(err.message);
 
-            if (reverse?.length > 0) {
-                const locationData = reverse[0];
-                const cityName =
-                    locationData.city || locationData.subregion || locationData.region || "Unknown";
+            // Show alert when location fails
+            showAlert(
+                "We couldn't detect your location. Please select a city manually.",
+                "Location Unavailable",
+                {
+                    confirmText: "Choose City",
+                    onConfirm: () => router.push("/search"),
+                }
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                setCity(cityName);
-                await saveSelectedCity(cityName);
-                await fetchWeather(cityName);
-            } else {
-                throw new Error("Could not determine location name");
+    // Manual refresh button action (optimized)
+    const handleRefreshLocation = async () => {
+        try {
+            setLoading(true);
+            setError(null); // Clear any previous errors
+            
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== "granted") {
+                showAlert(
+                    "Location permission is required to refresh your current location.",
+                    "Permission Denied",
+                    {
+                        confirmText: "OK",
+                    }
+                );
+                setError("Location permission denied");
+                setLoading(false);
+                return;
             }
+
+            // Use Balanced accuracy for faster location
+            const loc = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Balanced,
+                maximumAge: 30000, // Use cached location if less than 30 seconds old
+                timeout: 10000, // 10 second timeout
+            });
+
+            const { latitude, longitude } = loc.coords;
+            
+            // Fetch weather directly with coordinates (faster)
+            await fetchWeather({ latitude, longitude });
+            setError(null); // Clear error on success
+            
+            // Get city name in parallel (non-blocking)
+            Location.reverseGeocodeAsync({ latitude, longitude })
+                .then((reverse) => {
+                    if (reverse?.length > 0) {
+                        const locationData = reverse[0];
+                        const cityName =
+                            locationData.city || locationData.subregion || locationData.region || "Unknown";
+                        setCity(cityName);
+                        saveSelectedCity(cityName); // Save in background
+                    }
+                })
+                .catch((err) => {
+                    console.log("Reverse geocoding failed (non-critical):", err);
+                    setCity(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+                });
         } catch (err) {
             console.error("Error refreshing location:", err);
-            setError("Failed to refresh location");
+            const errorMessage = err.message || "Failed to refresh location";
+            setError(errorMessage);
+            showAlert(
+                "We couldn't refresh your location. Please try again or select a city manually.",
+                "Location Refresh Failed",
+                {
+                    confirmText: "Choose City",
+                    onConfirm: () => router.push("/search"),
+                }
+            );
         } finally {
             setLoading(false);
         }
@@ -281,19 +329,28 @@ const WeatherScreen = () => {
 
     return (
         <View style={styles.container}>
-            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never" contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={styles.header}>
                     <View>
                         <Text style={styles.headerTitle}>Forecast</Text>
                         <Text style={styles.headerDate}>{formatHeaderDate}</Text>
                     </View>
 
-                    <TouchableOpacity onPress={handleRefreshLocation} style={styles.refreshButton}>
-                        <Ionicons
-                            name="location-outline"
-                            size={22}
-                            color="#fff"
-                        />
+                    <TouchableOpacity 
+                        onPress={handleRefreshLocation} 
+                        style={[styles.refreshButton, loading && styles.refreshButtonDisabled]}
+                        disabled={loading}
+                        activeOpacity={0.7}
+                    >
+                        {loading ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                            <Ionicons
+                                name="location-outline"
+                                size={22}
+                                color="#fff"
+                            />
+                        )}
                     </TouchableOpacity>
                 </View>
 
@@ -428,9 +485,9 @@ const styles = StyleSheet.create({
         flex: 1
     },
     header: {
-        paddingTop: hp('6%'),
-        paddingBottom: hp('2.5%'),
-        paddingHorizontal: wp('6%'),
+        paddingTop: hp("8%"),
+        paddingBottom: hp("2%"),
+        paddingHorizontal: wp("5%"),
         backgroundColor: "#1261A0",
         flexDirection: "row"
     },
@@ -445,18 +502,22 @@ const styles = StyleSheet.create({
         color: 'rgba(255, 255, 255, 0.9)',
     },
     content: {
-        padding: wp('4%'),
-        paddingBottom: hp('5%'),
+        paddingHorizontal: wp("5%"),
+        paddingTop: hp("2%"),
+        paddingBottom: hp("5%"),
     },
     refreshButton: {
         backgroundColor: "rgba(255, 255, 255, 0.15)",
         width: wp("10%"),
-        padding: 8,
-        borderRadius: 20,
+        padding: hp("1%"),
+        borderRadius: hp("2.5%"),
         alignItems: "center",
         justifyContent: "center",
         height: hp("5%"),
-        marginLeft: wp("27%")
+        marginLeft: wp("25%"),
+    },
+    refreshButtonDisabled: {
+        opacity: 0.6,
     },
     locationBar: {
         flexDirection: "row",
@@ -477,7 +538,7 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         flexShrink: 1,
         textAlignVertical: "center",
-        marginHorizontal: 10,
+        marginHorizontal: wp("2.5%"),
         width: '65%',
     },
 

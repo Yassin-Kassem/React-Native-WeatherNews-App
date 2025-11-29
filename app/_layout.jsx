@@ -1,4 +1,4 @@
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, LogBox } from 'react-native';
@@ -10,16 +10,18 @@ export default function RootLayout() {
     "FirebaseError:", 
     "[auth/invalid-credential]"
   ]);
+
   const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null)
+  const [user, setUser] = useState(null);
+
   const router = useRouter();
   const segments = useSegments();
-  
-  const onAuthStateChanged = (user: FirebaseAuthTypes.User | null) => {
+
+  const onAuthStateChanged = (user) => {
     console.log("user", user);
     setUser(user);
     if (initializing) setInitializing(false);
-  }
+  };
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
@@ -28,15 +30,21 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (initializing) return;
+  
     const inAuthGroup = segments[0] === "(auth)";
-    if (user) {
-      if (!inAuthGroup) router.replace("/weather"); 
-    } else {
-      if (inAuthGroup) router.replace("/");
+  
+    if (user && inAuthGroup) {
+      router.replace("/weather");
     }
+  
+    if (!user && !inAuthGroup) {
+      router.replace("/");
+    }
+  
   }, [user, initializing]);
+  
 
-  if(initializing) {
+  if (initializing) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 

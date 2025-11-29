@@ -2,22 +2,26 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
-    ActivityIndicator,
-    Platform,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
 import { WebView } from "react-native-webview";
 
 export default function ArticleWebView() {
-  const { url } = useLocalSearchParams();
-  const router = useRouter();
+  const { link } = useLocalSearchParams();
+  const decodedUrl = decodeURIComponent(link);
+    const router = useRouter();
 
-  const decodedUrl = typeof url === "string" ? decodeURIComponent(url) : "";
 
   return (
     <View style={styles.container}>
@@ -25,9 +29,8 @@ export default function ArticleWebView() {
       <SafeAreaView style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
+            <Ionicons name="arrow-back" size={22} color="#fff" />
           </TouchableOpacity>
-          <View style={{ width: 24 }} /> {/* Spacer */}
         </View>
       </SafeAreaView>
 
@@ -58,31 +61,40 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    justifyContent: "flex-start",
+    paddingTop: hp("2%"),
+    paddingBottom: hp("2%"),
+    paddingHorizontal: wp("5%"),
     backgroundColor: "#6d597a",
+  },
+  backButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    padding: hp("1%"),
+    borderRadius: hp("2%"),
     shadowColor: "#000",
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 2,
     elevation: 2,
   },
-  backButton: { padding: 4 },
   headerTitle: {
     color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-    flex: 1,
-    textAlign: "center",
+    fontSize: wp("6%"),
+    fontWeight: "bold",
+    textAlign: "left",
   },
   loaderContainer: {
-    flex: 1,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#fff",
   },
   loadingText: {
-    marginTop: 10,
-    fontSize: 16,
+    marginTop: hp("1.5%"),
+    fontSize: wp("4%"),
     color: "#6d597a",
     fontWeight: "500",
   },

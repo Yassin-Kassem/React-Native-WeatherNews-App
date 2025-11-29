@@ -91,7 +91,7 @@ const SignUp = () => {
       );
       showAlert("Account created successfully!", "Success", {
         confirmText: "Continue",
-        onConfirm: () => router.push("/weather"),
+        onConfirm: () => router.replace("/weather"),
       });
     } catch (error) {
       console.error("Signup error:", error);
