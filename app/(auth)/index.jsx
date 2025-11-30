@@ -3,21 +3,21 @@ import auth from '@react-native-firebase/auth';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
+    heightPercentageToDP as hp,
+    widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import CustomAlert from '../components/customAlert';
+import CustomAlert from '../../components/customAlert';
 
 const Login = () => {
   const router = useRouter();
@@ -66,10 +66,8 @@ const Login = () => {
     setLoading(true);
     try {
       await auth().signInWithEmailAndPassword(trimmedEmail, trimmedPassword);
-      showAlert("Welcome back!", "Success", {
-        confirmText: "Continue",
-        onConfirm: () => router.replace("/weather"),
-      });
+      // Protected routes will handle navigation automatically
+      showAlert("Welcome back!", "Success");
     } catch (error) {
       console.error("Login error:", error);
 
@@ -365,3 +363,4 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 });
+

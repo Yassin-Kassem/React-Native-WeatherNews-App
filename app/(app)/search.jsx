@@ -237,3 +237,4 @@ const styles = StyleSheet.create({
         fontSize: wp("4%"),
     },
 });
+

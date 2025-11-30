@@ -28,7 +28,7 @@ export default function ArticleWebView() {
       <View style={styles.statusBarBg} />
       <SafeAreaView style={styles.headerContainer}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={() => router.push("/news")} style={styles.backButton}>
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -100,3 +100,4 @@ const styles = StyleSheet.create({
   },
   webview: { flex: 1 },
 });
+

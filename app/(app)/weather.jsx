@@ -693,3 +693,4 @@ const styles = StyleSheet.create({
         borderRadius: hp('0.3%'),
     },
 });
+

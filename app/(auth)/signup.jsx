@@ -17,7 +17,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
-import CustomAlert from "../components/customAlert"; // adjust path if needed
+import CustomAlert from "../../components/customAlert";
 
 const SignUp = () => {
   const router = useRouter();
@@ -89,10 +89,8 @@ const SignUp = () => {
         trimmedEmail,
         trimmedPassword
       );
-      showAlert("Account created successfully!", "Success", {
-        confirmText: "Continue",
-        onConfirm: () => router.replace("/weather"),
-      });
+      // Protected routes will handle navigation automatically
+      showAlert("Account created successfully!", "Success");
     } catch (error) {
       console.error("Signup error:", error);
       if (error.code === "auth/email-already-in-use") {
@@ -419,3 +417,4 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 });
+
