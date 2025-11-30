@@ -68,7 +68,7 @@ const Login = () => {
       await auth().signInWithEmailAndPassword(trimmedEmail, trimmedPassword);
       showAlert("Welcome back!", "Success", {
         confirmText: "Continue",
-        onConfirm: () => router.push("/weather"),
+        onConfirm: () => router.replace("/weather"),
       });
     } catch (error) {
       console.error("Login error:", error);
