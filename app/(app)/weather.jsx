@@ -438,9 +438,9 @@ const WeatherScreen = () => {
                                 <Text style={styles.forecastTitle}>7-Day Forecast</Text>
                             </View>
                             <View style={styles.forecastList}>
-                                {weather.forecast.forecastday.slice(0, 7).map((f, index) => (
+                                {weather.forecast.forecastday.slice(0, 7).map((f) => (
                                     <ForecastRow
-                                        key={index}
+                                        key={f?.date}
                                         day={toDayAbbrev(f?.date)}
                                         icon={iconForCondition(f?.day?.condition?.text)}
                                         high={Math.round(f?.day?.maxtemp_c ?? 0)}
