@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
@@ -25,6 +25,7 @@ export default function SearchScreen() {
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const debounceTimerRef = useRef(null);
 
     const saveSelectedCity = async (cityName) => {
         try {
@@ -34,26 +35,66 @@ export default function SearchScreen() {
         }
     };
 
-    const searchCities = async (text) => {
-        setQuery(text);
-        if (text.length < 2) {
+    // Debounced API call - only executes after user stops typing for 500ms
+    const performSearch = async (searchText) => {
+        if (searchText.length < 2) {
             setResults([]);
+            setLoading(false);
             return;
         }
         try {
             setLoading(true);
             const res = await fetch(
-                `https://api.weatherapi.com/v1/search.json?key=${API_KEY}&q=${encodeURIComponent(text)}`
+                `https://api.weatherapi.com/v1/search.json?key=${API_KEY}&q=${encodeURIComponent(searchText)}`
             );
             const data = await res.json();
             if (Array.isArray(data)) setResults(data);
             else setResults([]);
         } catch (e) {
             console.error("Error fetching cities:", e);
+            setResults([]);
         } finally {
             setLoading(false);
         }
     };
+
+    // Update query immediately for UI responsiveness
+    const handleQueryChange = (text) => {
+        setQuery(text);
+        // Clear results immediately if query is too short
+        if (text.length < 2) {
+            setResults([]);
+            setLoading(false);
+        }
+    };
+
+    // Debounce effect: triggers API call after user stops typing
+    useEffect(() => {
+        // Clear any existing timer
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+
+        // If query is too short, don't make API call
+        if (query.length < 2) {
+            return;
+        }
+
+        // Set loading state immediately when user types
+        setLoading(true);
+
+        // Set new timer to make API call after 500ms of no typing
+        debounceTimerRef.current = setTimeout(() => {
+            performSearch(query);
+        }, 500);
+
+        // Cleanup: clear timer on unmount or when query changes
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+        };
+    }, [query]);
 
     const selectCity = async (cityName) => {
         try {
@@ -85,7 +126,7 @@ export default function SearchScreen() {
                     placeholder="Search for a city..."
                     placeholderTextColor="#999"
                     value={query}
-                    onChangeText={searchCities}
+                    onChangeText={handleQueryChange}
                     style={styles.input}
                 />
             </View>
