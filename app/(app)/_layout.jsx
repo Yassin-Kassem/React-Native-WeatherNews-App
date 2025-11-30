@@ -1,23 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Redirect, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, LogBox } from 'react-native';
-import { useAuth } from '../../hooks/useAuth';
+import { LogBox } from 'react-native';
 
 LogBox.ignoreLogs([
   'Text strings must be rendered within a <Text> component',
 ]);
 
 export default function AppLayout() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
-
-  if (!user) {
-    return <Redirect href="/(auth)" />;
-  }
 
   return (
     <Tabs
