@@ -18,7 +18,7 @@ export default function RootLayout() {
   const segments = useSegments();
 
   const onAuthStateChanged = (user) => {
-    console.log("user", user);
+    console.log("Auth state changed:", user ? "User logged in" : "User logged out");
     setUser(user);
     if (initializing) setInitializing(false);
   };
@@ -32,16 +32,24 @@ export default function RootLayout() {
     if (initializing) return;
   
     const inAuthGroup = segments[0] === "(auth)";
+    const inArticleGroup = segments[0] === "article";
+    const isOnLoginPage = segments.length === 0 || segments[0] === "index" || segments[0] === "signup";
   
-    if (user && inAuthGroup) {
-      router.replace("/weather");
+    if (user) {
+      if (isOnLoginPage) {
+        router.replace("/weather");
+      }
+      return;
     }
   
-    if (!user && !inAuthGroup) {
-      router.replace("/");
+    if (!user) {
+      if (inAuthGroup || inArticleGroup) {
+        router.replace("/");
+      }
+      return;
     }
   
-  }, [user, initializing]);
+  }, [user, initializing, segments]);
   
 
   if (initializing) {
