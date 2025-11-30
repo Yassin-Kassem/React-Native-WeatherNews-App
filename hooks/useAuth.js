@@ -6,12 +6,28 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged((user) => {
-      setUser(user);
-      setLoading(false);
-    });
+    try {
+      const subscriber = auth().onAuthStateChanged(
+        (user) => {
+          try {
+            setUser(user);
+            setLoading(false);
+          } catch (error) {
+            setLoading(false);
+          }
+        },
+        (error) => {
+          setUser(null);
+          setLoading(false);
+        }
+      );
 
-    return subscriber;
+      return subscriber;
+    } catch (error) {
+      // Handle subscription errors
+      setUser(null);
+      setLoading(false);
+    }
   }, []);
 
   return { user, loading };

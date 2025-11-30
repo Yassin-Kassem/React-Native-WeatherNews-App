@@ -1,12 +1,6 @@
 import { Stack } from "expo-router";
-import { ActivityIndicator, LogBox } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
-
-LogBox.ignoreLogs([
-  "Possible Unhandled Promise Rejection", 
-  "FirebaseError:", 
-  "[auth/invalid-credential]"
-]);
 
 export default function RootLayout() {
   const { user, loading } = useAuth();

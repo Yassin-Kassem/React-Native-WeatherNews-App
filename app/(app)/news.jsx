@@ -11,13 +11,12 @@ import {
   Image,
   Keyboard,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
 const NEWSDATA_API_KEY = "pub_ffab93546f794a52ad26d4f8de5f312c";
@@ -120,7 +119,7 @@ export default function NewsScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar style="light" />
       {/* Header */}
       <View style={styles.header}>
@@ -204,7 +203,7 @@ export default function NewsScreen() {
           }
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 

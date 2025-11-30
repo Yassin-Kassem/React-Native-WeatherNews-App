@@ -69,48 +69,64 @@ const Login = () => {
       // Protected routes will handle navigation automatically
       showAlert("Welcome back!", "Success");
     } catch (error) {
-      console.error("Login error:", error);
+      // Handle all Firebase auth errors properly
+      try {
+        const errorCode = error?.code || error?.message || 'unknown';
+        
+        switch (errorCode) {
+          case "auth/invalid-email":
+            showAlert("That email address is invalid. Please check and try again.");
+            break;
 
-      switch (error.code) {
-        case "auth/invalid-email":
-          showAlert("That email address is invalid. Please check and try again.");
-          break;
+          case "auth/user-disabled":
+            showAlert("This account has been disabled. Please contact support.");
+            break;
 
-        case "auth/user-disabled":
-          showAlert("This account has been disabled. Please contact support.");
-          break;
+          case "auth/user-not-found":
+            showAlert("No account found with that email address.");
+            break;
 
-        case "auth/user-not-found":
-          showAlert("No account found with that email address.");
-          break;
+          case "auth/wrong-password":
+            showAlert("Incorrect password. Please try again.");
+            break;
 
-        case "auth/wrong-password":
-          showAlert("Incorrect password. Please try again.");
-          break;
+          case "auth/invalid-credential":
+            showAlert(
+              "Your login credentials are invalid or expired. Please try signing in again."
+            );
+            break;
 
-        case "auth/invalid-credential":
-          showAlert(
-            "Your login credentials are invalid or expired. Please try signing in again."
-          );
-          break;
+          case "auth/too-many-requests":
+            showAlert(
+              "Too many unsuccessful login attempts. Please wait a few minutes before trying again."
+            );
+            break;
 
-        case "auth/too-many-requests":
-          showAlert(
-            "Too many unsuccessful login attempts. Please wait a few minutes before trying again."
-          );
-          break;
+          case "auth/network-request-failed":
+            showAlert(
+              "Network error. Please check your internet connection and try again."
+            );
+            break;
 
-        case "auth/network-request-failed":
-          showAlert(
-            "Network error. Please check your internet connection and try again."
-          );
-          break;
-
-        default:
-          showAlert(
-            "Something went wrong while signing in. Please try again later."
-          );
-          break;
+          default:
+            // Silently handle unknown errors to prevent unhandled promise rejections
+            if (errorCode.includes('FirebaseError') || errorCode.includes('auth/')) {
+              showAlert(
+                "Something went wrong while signing in. Please try again later."
+              );
+            } else {
+              // For non-Firebase errors, still show a message but don't log to console
+              showAlert(
+                "Something went wrong while signing in. Please try again later."
+              );
+            }
+            break;
+        }
+      } catch (nestedError) {
+        // Fallback error handling to prevent unhandled promise rejections
+        showAlert(
+          "Something went wrong while signing in. Please try again later."
+        );
       }
     } finally {
       setLoading(false);

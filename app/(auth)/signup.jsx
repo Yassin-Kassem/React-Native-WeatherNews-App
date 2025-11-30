@@ -92,14 +92,29 @@ const SignUp = () => {
       // Protected routes will handle navigation automatically
       showAlert("Account created successfully!", "Success");
     } catch (error) {
-      console.error("Signup error:", error);
-      if (error.code === "auth/email-already-in-use") {
-        showAlert("That email address is already in use.");
-      } else if (error.code === "auth/invalid-email") {
-        showAlert("That email address is invalid.");
-      } else if (error.code === "auth/weak-password") {
-        showAlert("Password should be at least 6 characters.");
-      } else {
+      // Handle all Firebase auth errors properly
+      try {
+        const errorCode = error?.code || error?.message || 'unknown';
+        
+        if (errorCode === "auth/email-already-in-use") {
+          showAlert("That email address is already in use.");
+        } else if (errorCode === "auth/invalid-email") {
+          showAlert("That email address is invalid.");
+        } else if (errorCode === "auth/weak-password") {
+          showAlert("Password should be at least 6 characters.");
+        } else if (errorCode === "auth/network-request-failed") {
+          showAlert("Network error. Please check your internet connection and try again.");
+        } else {
+          // Silently handle unknown errors to prevent unhandled promise rejections
+          if (errorCode.includes('FirebaseError') || errorCode.includes('auth/')) {
+            showAlert("Something went wrong. Please try again later.");
+          } else {
+            // For non-Firebase errors, still show a message but don't log to console
+            showAlert("Something went wrong. Please try again later.");
+          }
+        }
+      } catch (nestedError) {
+        // Fallback error handling to prevent unhandled promise rejections
         showAlert("Something went wrong. Please try again later.");
       }
     } finally {
