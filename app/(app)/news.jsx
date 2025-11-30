@@ -87,18 +87,25 @@ export default function NewsScreen() {
     fetchNews(searchTerm);
   };
 
-  const openArticle = (url) => {
+  const openArticle = useCallback((url) => {
     if (!url || !url.startsWith("http")) return;
     router.push({
       pathname: "/article/[link]",
       params: { link: encodeURIComponent(url) },
     });    
-  };
+  }, [router]);
 
-  const renderArticle = ({ item }) => (
+  const renderArticle = useCallback(({ item }) => (
     <TouchableOpacity activeOpacity={0.9} onPress={() => openArticle(item.link)}>
       <View style={styles.card}>
-        {item.image_url && <Image source={{ uri: item.image_url }} style={styles.image} />}
+        {item.image_url && (
+          <Image
+            source={{ uri: item.image_url }}
+            style={styles.image}
+            resizeMode="cover"
+            progressiveRenderingEnabled={true}
+          />
+        )}
         {item.category && (
           <View style={styles.tagContainer}>
             <Text style={styles.tagText}>{item.category[0]?.toUpperCase()}</Text>
@@ -116,7 +123,7 @@ export default function NewsScreen() {
         </View>
       </View>
     </TouchableOpacity>
-  );
+  ), [openArticle]);
 
   return (
     <View style={styles.container}>
@@ -193,6 +200,11 @@ export default function NewsScreen() {
           renderItem={renderArticle}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          removeClippedSubviews={true}
+          initialNumToRender={8}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          windowSize={10}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -340,4 +352,3 @@ const styles = StyleSheet.create({
     fontSize: wp("4%"),
   },
 });
-

@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -20,23 +20,65 @@ import { WebView } from "react-native-webview";
 export default function ArticleWebView() {
   const { link } = useLocalSearchParams();
   const decodedUrl = decodeURIComponent(link);
-    const router = useRouter();
+  const router = useRouter();
+  const webViewRef = useRef(null);
 
+  // Robust cleanup on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (webViewRef.current) {
+        try {
+          webViewRef.current.stopLoading?.();
+          webViewRef.current.injectJavaScript?.("window.stop(); true;");
+          webViewRef.current.reload?.();
+        } catch (error) {
+          console.warn('WebView cleanup error:', error);
+        }
+      }
+    };
+  }, []);
+
+  // Fixed navigation: always go to news page explicitly to prevent wrong navigation
+  const handleBack = () => {
+    // Always replace to /news to prevent stack growth and ensure correct navigation
+    router.replace("/news");
+  };
+
+  // Error fallback renderer
+  const renderError = () => (
+    <View style={styles.errorContainer}>
+      <Ionicons name="alert-circle-outline" size={48} color="#6d597a" />
+      <Text style={styles.errorTitle}>Failed to load article</Text>
+      <Text style={styles.errorText}>Please try again later</Text>
+      <TouchableOpacity onPress={handleBack} style={styles.errorButton}>
+        <Text style={styles.errorButtonText}>Go Back</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.statusBarBg} />
       <SafeAreaView style={styles.headerContainer}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.push("/news")} style={styles.backButton}>
+          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
 
       <WebView
+        ref={webViewRef}
         source={{ uri: decodedUrl }}
         startInLoadingState
+        setSupportMultipleWindows={false}
+        originWhitelist={["*"]}
+        cacheEnabled={false}
+        incognito={true}
+        androidLayerType="hardware"
+        androidHardwareAccelerationDisabled={false}
+        onLoadEnd={() => webViewRef.current?.clearCache?.(true)}
+        renderError={renderError}
         renderLoading={() => (
           <View style={styles.loaderContainer}>
             <ActivityIndicator color="#6d597a" size="large" />
@@ -99,5 +141,35 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   webview: { flex: 1 },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingHorizontal: wp("10%"),
+  },
+  errorTitle: {
+    fontSize: wp("5%"),
+    fontWeight: "bold",
+    color: "#6d597a",
+    marginTop: hp("2%"),
+    marginBottom: hp("1%"),
+  },
+  errorText: {
+    fontSize: wp("4%"),
+    color: "#64748B",
+    textAlign: "center",
+    marginBottom: hp("3%"),
+  },
+  errorButton: {
+    backgroundColor: "#6d597a",
+    paddingHorizontal: wp("8%"),
+    paddingVertical: hp("1.5%"),
+    borderRadius: wp("3%"),
+  },
+  errorButtonText: {
+    color: "#fff",
+    fontSize: wp("4%"),
+    fontWeight: "600",
+  },
 });
-
