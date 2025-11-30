@@ -440,7 +440,7 @@ const WeatherScreen = () => {
                             <View style={styles.forecastList}>
                                 {weather.forecast.forecastday.slice(0, 7).map((f) => (
                                     <ForecastRow
-                                        key={f?.date}
+                                        key={`${f.date}-${weather.current.last_updated_epoch}`}
                                         day={toDayAbbrev(f?.date)}
                                         icon={iconForCondition(f?.day?.condition?.text)}
                                         high={Math.round(f?.day?.maxtemp_c ?? 0)}
